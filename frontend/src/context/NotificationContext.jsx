@@ -141,7 +141,9 @@ export const NotificationProvider = ({ session, children }) => {
 
       client.subscribe('/user/queue/messages', (message) => {
         try {
-          handleIncomingMessage(JSON.parse(message.body));
+          const bigintRegex = /(?<![\d"])(-?\d{16,})(?![\d"])/g;
+          const bodyText = message.body.replace(bigintRegex, '"$1"');
+          handleIncomingMessage(JSON.parse(bodyText));
         } catch (e) {
           console.error('Error parsing WS message:', e);
         }
@@ -149,7 +151,9 @@ export const NotificationProvider = ({ session, children }) => {
  
       client.subscribe('/user/queue/notifications', (message) => {
         try {
-          handleIncomingNotification(JSON.parse(message.body));
+          const bigintRegex = /(?<![\d"])(-?\d{16,})(?![\d"])/g;
+          const bodyText = message.body.replace(bigintRegex, '"$1"');
+          handleIncomingNotification(JSON.parse(bodyText));
         } catch (e) {
           console.error('Error parsing WS notification:', e);
         }
