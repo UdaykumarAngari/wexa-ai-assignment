@@ -39,14 +39,14 @@ const FloatingDock = ({ onPlusClick }) => {
   };
 
   return (
-    <div className="fixed bottom-8 left-0 right-0 flex justify-center z-50 md:hidden">
-      <nav className="flex items-center gap-1.5 bg-white/90 backdrop-blur-md px-6 py-2.5 rounded-full border border-slate-200 shadow-dock">
+    <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+      <nav className="w-full flex items-center justify-around bg-white/90 backdrop-blur-md py-2 border-t border-slate-200 shadow-lg">
         {leftItems.map(renderNavItem)}
 
         <div className="relative px-2">
           <button 
             onClick={onPlusClick}
-            className="bg-rgukt-maroon p-4 rounded-full -mt-12 border-4 border-rgukt-slate shadow-lg hover:scale-110 transition-transform cursor-pointer group"
+            className="bg-rgukt-maroon p-4 rounded-full -mt-10 border-4 border-rgukt-slate shadow-lg hover:scale-110 transition-transform cursor-pointer group"
           >
             <Plus size={28} className="text-rgukt-gold group-hover:rotate-90 transition-transform" strokeWidth={3} />
           </button>

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { usePrompt } from '../context/PromptContext';
  
-const CommentItem = ({ comment, session, onLikeComment, onAddReply, onDeleteComment, postAuthorId }) => {
+const CommentItem = ({ comment, session, onLikeComment, onAddReply }) => {
   const navigate = useNavigate();
   const [showReplyForm, setShowReplyForm] = useState(false);
   const [replyContent, setReplyContent] = useState('');
@@ -116,14 +116,6 @@ const CommentItem = ({ comment, session, onLikeComment, onAddReply, onDeleteComm
             >
               Reply
             </button>
-            {(comment.authorId == session?.id || postAuthorId == session?.id) && (
-              <button 
-                onClick={() => onDeleteComment(comment.id)}
-                className="text-red-500 hover:text-red-700 text-[9px] font-bold cursor-pointer ml-auto"
-              >
-                Delete
-              </button>
-            )}
           </div>
         </div>
       </div>
@@ -172,8 +164,6 @@ const CommentItem = ({ comment, session, onLikeComment, onAddReply, onDeleteComm
               session={session} 
               onLikeComment={onLikeComment} 
               onAddReply={onAddReply} 
-              onDeleteComment={onDeleteComment}
-              postAuthorId={postAuthorId}
             />
           ))}
         </div>
@@ -354,41 +344,6 @@ const PostCard = ({ post, session, onLikeToggle, onDelete }) => {
       onLikeToggle({ ...post, comments: comments + 1 });
     }
   };
-
-  const handleDeleteComment = async (commentId) => {
-    showPrompt({
-      type: 'confirm',
-      title: 'Delete Comment',
-      message: 'Are you sure you want to delete this comment? This action cannot be undone.',
-      confirmText: 'Delete',
-      onConfirm: async () => {
-        try {
-          await axios.delete(`/api/comments/${commentId}`, {
-            headers: { Authorization: `Bearer ${session?.token}` }
-          });
-          
-          const removeCommentRecursively = (comments) => {
-            return comments
-              .filter(c => c.id !== commentId)
-              .map(c => {
-                if (c.replies && c.replies.length > 0) {
-                  return { ...c, replies: removeCommentRecursively(c.replies) };
-                }
-                return c;
-              });
-          };
-          
-          setCommentsList(prev => removeCommentRecursively(prev));
-          if (onLikeToggle) {
-            onLikeToggle({ ...post, comments: Math.max(0, comments - 1) });
-          }
-        } catch (err) {
-          console.error('Error deleting comment:', err);
-          showPrompt({ type: 'error', message: 'Failed to delete comment.' });
-        }
-      }
-    });
-  };
  
   const shareOnWhatsApp = () => {
     const postUrl = `${window.location.origin}/post/${id}`;
@@ -478,7 +433,7 @@ const PostCard = ({ post, session, onLikeToggle, onDelete }) => {
           </button>
           {showMenu && (
             <div className="absolute right-0 mt-1 w-40 bg-white border border-slate-100 rounded-2xl shadow-xl z-20 py-1.5">
-              {session?.id == authorId ? (
+              {session?.id === authorId ? (
                 <button 
                   onClick={handleDelete}
                   className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 font-semibold cursor-pointer transition-colors"
@@ -615,8 +570,6 @@ const PostCard = ({ post, session, onLikeToggle, onDelete }) => {
                   session={session} 
                   onLikeComment={handleLikeComment} 
                   onAddReply={handleAddReply} 
-                  onDeleteComment={handleDeleteComment}
-                  postAuthorId={authorId}
                 />
               ))
             )}

@@ -18,8 +18,18 @@ const Home = ({ session, onLogout }) => {
     filteredPosts,
   } = useHome();
 
+  React.useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const searchVal = params.get('search');
+    if (searchVal) {
+      setSearchQuery(searchVal);
+      // Clean up the URL search parameter to keep URL clean
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [setSearchQuery]);
+
   return (
-    <div className="min-h-screen bg-rgukt-slate flex flex-col">
+    <div className="h-screen md:min-h-screen md:h-auto bg-rgukt-slate flex flex-col overflow-hidden md:overflow-visible">
       <Navbar
         isLanding={false}
         searchQuery={searchQuery}
@@ -29,7 +39,7 @@ const Home = ({ session, onLogout }) => {
         onPlusClick={() => setIsModalOpen(true)}
       />
 
-      <main className="flex-1 max-w-6xl mx-auto w-full px-2 pt-8 pb-60 flex justify-center gap-8 items-start">
+      <main className="flex-1 overflow-y-auto md:overflow-visible min-h-0 md:min-h-auto w-full max-w-6xl mx-auto px-2 pt-8 pb-32 md:pb-60 flex justify-center gap-8 items-start">
         <aside className="hidden lg:block w-72 shrink-0 sticky top-20">
           <ProfileSummaryCard session={session} />
         </aside>

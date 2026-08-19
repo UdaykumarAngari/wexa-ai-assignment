@@ -137,9 +137,9 @@ export const MessagesProvider = ({ session, onLogout, children }) => {
 
     const handleIncomingMessage = (msg) => {
       const activeChat = selectedChatRef.current;
-      if (activeChat && (msg.sender.id == activeChat.id || msg.sender.id == session.id)) {
+      if (activeChat && (msg.sender.id === activeChat.id || msg.sender.id === session.id)) {
         setMessagesList(prev => {
-          if (prev.some(m => m.id == msg.id)) return prev;
+          if (prev.some(m => m.id === msg.id)) return prev;
           return [...prev, msg];
         });
       } else {
@@ -151,9 +151,9 @@ export const MessagesProvider = ({ session, onLogout, children }) => {
 
       setConnections(prev => {
         let updatedConnections = prev.map(conn => {
-          if (conn.id == msg.sender.id || conn.id == msg.receiver.id) {
-            const matchId = msg.sender.id == session.id ? msg.receiver.id : msg.sender.id;
-            if (conn.id == matchId) {
+          if (conn.id === msg.sender.id || conn.id === msg.receiver.id) {
+            const matchId = msg.sender.id === session.id ? msg.receiver.id : msg.sender.id;
+            if (conn.id === matchId) {
               return {
                 ...conn,
                 lastMessage: msg.content,
@@ -200,7 +200,7 @@ export const MessagesProvider = ({ session, onLogout, children }) => {
 
     setConnections(prev => {
       let updatedConnections = prev.map(conn => {
-        if (conn.id == selectedChat.id) {
+        if (conn.id === selectedChat.id) {
           return {
             ...conn,
             lastMessage: messageText.trim(),
