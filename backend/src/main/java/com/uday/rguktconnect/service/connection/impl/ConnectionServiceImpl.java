@@ -153,4 +153,11 @@ public class ConnectionServiceImpl implements ConnectionService {
     public boolean areConnected(Long userAId, Long userBId) {
         return connectionRepository.areUsersConnected(userAId, userBId);
     }
+
+    @Override
+    public List<Map<String, Object>> getRecommendedConnections(String currentEmail) {
+        User currentUser = userRepository.findByUniversityEmail(currentEmail)
+                .orElseThrow(() -> new RuntimeException("Identity context missing"));
+        return connectionRepository.findRecommendedConnections(currentUser.getId());
+    }
 }

@@ -11,6 +11,27 @@ export const NotificationProvider = ({ session, children }) => {
   const [unreadNotifications, setUnreadNotifications] = useState(0);
   const [notificationsList, setNotificationsList] = useState([]);
   const [activeChatUserId, setActiveChatUserId] = useState(null);
+  const [isDbOffline, setIsDbOffline] = useState(false);
+
+  useEffect(() => {
+    const interceptor = axios.interceptors.response.use(
+      response => {
+        setIsDbOffline(false);
+        return response;
+      },
+      error => {
+        if (!error.response) {
+          setIsDbOffline(true);
+        } else if (error.response.status === 503) {
+          setIsDbOffline(true);
+        }
+        return Promise.reject(error);
+      }
+    );
+    return () => {
+      axios.interceptors.response.eject(interceptor);
+    };
+  }, []);
 
   const stompClientRef = useRef(null);
   const messageListenersRef = useRef([]);
@@ -185,7 +206,8 @@ export const NotificationProvider = ({ session, children }) => {
       fetchUnreadCounts,
       markNotificationAsRead,
       markAllNotificationsAsRead,
-      stompClient: stompClientRef.current
+      stompClient: stompClientRef.current,
+      isDbOffline
     }}>
       {children}
     </NotificationContext.Provider>

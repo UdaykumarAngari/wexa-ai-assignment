@@ -17,5 +17,11 @@ public class GlobalExceptionHandler {
                 .body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(org.neo4j.driver.exceptions.Neo4jException.class)
+    public ResponseEntity<?> handleNeo4jException(org.neo4j.driver.exceptions.Neo4jException ex) {
+        return ResponseEntity
+                .status(HttpStatus.SERVICE_UNAVAILABLE)
+                .body(Map.of("error", "Database service is temporarily unavailable. Please try again later."));
+    }
 
 }

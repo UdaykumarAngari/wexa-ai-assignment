@@ -12,4 +12,5 @@ public interface ConnectionService {
     List<Connection> getPendingReceivedRequests(String currentEmail);
     List<Map<String, Object>> getUserConnectionList(Long userId);
     boolean areConnected(Long userAId, Long userBId);
+    List<Map<String, Object>> getRecommendedConnections(String currentEmail);
 }

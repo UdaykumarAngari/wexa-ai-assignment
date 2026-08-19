@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import Navbar from '../components/Navbar';
 import FloatingDock from '../components/FloatingDock';
 import UserCard from '../components/UserCard';
@@ -22,6 +23,7 @@ const Network = ({ session, onLogout }) => {
     handleRejectInvite,
     handleStatusChange,
     filteredUsers,
+    recommendations
   } = useNetwork();
 
   return (
@@ -79,6 +81,74 @@ const Network = ({ session, onLogout }) => {
                       className="border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg text-xs font-bold hover:bg-white transition-all cursor-pointer"
                     >
                       Ignore
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Recommended Connections (People You May Know) */}
+        {recommendations.length > 0 && (
+          <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm mb-8">
+            <h3 className="font-bold text-charcoal mb-1.5 flex items-center gap-2 text-sm uppercase tracking-wider">
+              <span className="w-2.5 h-2.5 rounded-full bg-rgukt-gold animate-pulse"></span>
+              People You May Know
+            </h3>
+            <p className="text-xs text-slate-400 mb-4 font-semibold">Recommended via professional graph (mutual connections)</p>
+            
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+              {recommendations.map(rec => (
+                <div key={rec.id} className="p-4 bg-slate-50/65 border border-slate-100 rounded-2xl flex flex-col justify-between shadow-xs relative overflow-hidden group">
+                  <div className="flex gap-3 min-w-0">
+                    <div className="w-12 h-12 rounded-full bg-rgukt-maroon/10 border border-rgukt-maroon/20 text-rgukt-maroon font-black flex items-center justify-center text-sm shadow-sm shrink-0 overflow-hidden">
+                      {rec.profilePhoto ? (
+                        <img src={rec.profilePhoto} alt={rec.name} className="w-full h-full object-cover" />
+                      ) : (
+                        rec.name.split(' ').map(n => n[0]).join('').toUpperCase().substring(0, 2)
+                      )}
+                    </div>
+                    
+                    <div className="min-w-0 flex-1">
+                      <h5 className="font-bold text-charcoal text-sm truncate group-hover:text-rgukt-maroon transition-colors">{rec.name}</h5>
+                      <p className="text-[10px] text-slate-400 font-medium">{rec.role} • {rec.idNumber}</p>
+                      
+                      <div className="mt-2 flex items-center gap-1">
+                        <span className="text-[10px] bg-rgukt-gold/15 text-amber-700 font-black px-1.5 py-0.5 rounded-full">
+                          {rec.mutualCount} Mutual Connection{rec.mutualCount > 1 ? 's' : ''}
+                        </span>
+                      </div>
+                      
+                      {rec.mutualFriends && rec.mutualFriends.length > 0 && (
+                        <p className="text-[9px] text-slate-400 mt-1 truncate">
+                          Mutual: <span className="font-bold text-slate-500">{rec.mutualFriends.join(', ')}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="mt-4 flex gap-2 w-full">
+                    <button 
+                      onClick={() => navigate(`/profile?userId=${rec.id}`)}
+                      className="flex-1 bg-white border border-slate-200 text-slate-700 py-1.5 rounded-xl text-xs font-bold hover:bg-slate-50 active:scale-[0.98] transition-all cursor-pointer text-center"
+                    >
+                      Profile
+                    </button>
+                    <button 
+                      onClick={async () => {
+                        try {
+                          await axios.post(`/api/connections/request/${rec.id}`, {}, {
+                            headers: { Authorization: `Bearer ${session.token}` }
+                          });
+                          handleStatusChange();
+                        } catch (err) {
+                          console.error(err);
+                        }
+                      }}
+                      className="flex-1 bg-rgukt-maroon text-white py-1.5 rounded-xl text-xs font-bold hover:shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer text-center"
+                    >
+                      Connect
                     </button>
                   </div>
                 </div>

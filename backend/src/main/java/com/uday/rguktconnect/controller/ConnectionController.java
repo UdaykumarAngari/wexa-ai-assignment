@@ -58,4 +58,9 @@ public class ConnectionController {
     public ResponseEntity<?> getConnectionList(@PathVariable Long userId) {
         return ResponseEntity.ok(connectionService.getUserConnectionList(userId));
     }
+
+    @GetMapping("/recommendations")
+    public ResponseEntity<?> getRecommendations() {
+        return ResponseEntity.ok(connectionService.getRecommendedConnections(getAuthenticatedEmail()));
+    }
 }

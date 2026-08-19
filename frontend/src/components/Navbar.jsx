@@ -18,7 +18,7 @@ const Navbar = ({ isLanding = false, searchQuery, setSearchQuery, session, onLog
   const homeContext = useHome();
   const notificationRef = useRef(null);
   const profileDropdownRef = useRef(null);
-  const { unreadNotifications, unreadMessages } = useNotifications();
+  const { unreadNotifications, unreadMessages, isDbOffline } = useNotifications() || {};
 
   const [localSearchVal, setLocalSearchVal] = useState('');
 
@@ -251,6 +251,15 @@ const Navbar = ({ isLanding = false, searchQuery, setSearchQuery, session, onLog
         )}
       </header>
       <div className="h-[61px] shrink-0" />
+      {isDbOffline && (
+        <div className="fixed bottom-4 right-4 left-4 md:left-auto md:max-w-md z-[9999] bg-red-600 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-red-500 animate-pulse transition-all">
+          <span className="text-xl">⚠️</span>
+          <div>
+            <p className="font-extrabold text-sm">Database Unreachable</p>
+            <p className="text-[11px] opacity-90 font-bold">Campus Connect is temporarily offline. Attempting to reconnect...</p>
+          </div>
+        </div>
+      )}
     </>
   );
 };

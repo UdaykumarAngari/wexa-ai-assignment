@@ -241,4 +241,39 @@ public class ConnectionRepository {
         }
         return conn;
     }
+
+    public List<Map<String, Object>> findRecommendedConnections(Long userId) {
+        try (Session session = driver.session()) {
+            return session.executeRead(tx -> {
+                var result = tx.run(
+                    "MATCH (u:User {id: $userId})-[:CONNECTED {status: 'ACCEPTED'}]-(friend:User)-[:CONNECTED {status: 'ACCEPTED'}]-(fof:User) " +
+                    "WHERE NOT (u)-[:CONNECTED]-(fof) AND u.id <> fof.id " +
+                    "OPTIONAL MATCH (fof)-[:HAS_DETAILS]->(d:UserDetails) " +
+                    "RETURN fof, d.profilePhoto AS profilePhoto, count(friend) AS mutualCount, collect(friend.name) AS mutualFriends " +
+                    "ORDER BY mutualCount DESC LIMIT 6",
+                    Values.parameters("userId", userId)
+                );
+                List<Map<String, Object>> list = new ArrayList<>();
+                while (result.hasNext()) {
+                    var record = result.next();
+                    Node fofNode = record.get("fof").asNode();
+                    long mutualCount = record.get("mutualCount").asLong();
+                    String profilePhoto = record.get("profilePhoto").isNull() ? null : record.get("profilePhoto").asString();
+                    List<Object> mutualFriends = record.get("mutualFriends").asList();
+
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("id", fofNode.get("id").asLong());
+                    map.put("idNumber", fofNode.get("idNumber").asString());
+                    map.put("name", fofNode.get("name").asString());
+                    map.put("universityEmail", fofNode.get("universityEmail").asString());
+                    map.put("role", fofNode.get("role").asString());
+                    map.put("profilePhoto", profilePhoto);
+                    map.put("mutualCount", mutualCount);
+                    map.put("mutualFriends", mutualFriends);
+                    list.add(map);
+                }
+                return list;
+            });
+        }
+    }
 }

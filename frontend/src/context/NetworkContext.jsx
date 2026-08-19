@@ -18,6 +18,7 @@ export const NetworkProvider = ({ session, onLogout, children }) => {
   const [refreshTrigger, setRefreshTrigger] = useState(0);
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [recommendations, setRecommendations] = useState([]);
 
   const fetchDirectory = async () => {
     if (!session?.token) return;
@@ -48,13 +49,27 @@ export const NetworkProvider = ({ session, onLogout, children }) => {
     }
   };
 
+  const fetchRecommendations = async () => {
+    if (!session?.token) return;
+    try {
+      const res = await axios.get('/api/connections/recommendations', {
+        headers: { Authorization: `Bearer ${session.token}` }
+      });
+      setRecommendations(res.data);
+    } catch (err) {
+      console.error('Error fetching recommendations:', err);
+    }
+  };
+
   useEffect(() => {
     if (session?.token) {
       fetchPendingInvites();
       fetchDirectory();
+      fetchRecommendations();
     } else {
       setUsers([]);
       setPendingInvites([]);
+      setRecommendations([]);
       setLoading(true);
     }
   }, [session, refreshTrigger]);
@@ -140,7 +155,9 @@ export const NetworkProvider = ({ session, onLogout, children }) => {
         handleAcceptInvite,
         handleRejectInvite,
         handleStatusChange,
-        filteredUsers
+        filteredUsers,
+        recommendations,
+        fetchRecommendations
       }}
     >
       {children}
