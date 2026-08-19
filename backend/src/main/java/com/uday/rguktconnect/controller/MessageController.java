@@ -7,6 +7,7 @@ import com.uday.rguktconnect.repository.user.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.transaction.annotation.Transactional;
@@ -107,7 +108,7 @@ public class MessageController {
 
 
     @MessageMapping("/chat.sendMessage")
-    public void processMessage(@RequestBody Map<String, Object> payload) {
+    public void processMessage(@Payload Map<String, Object> payload) {
         Long senderId = Long.valueOf(payload.get("senderId").toString());
         Long receiverId = Long.valueOf(payload.get("receiverId").toString());
         String content = payload.get("content").toString();
