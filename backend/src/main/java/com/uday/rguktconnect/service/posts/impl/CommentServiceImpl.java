@@ -94,8 +94,16 @@ public class CommentServiceImpl implements CommentService {
         Comment comment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("Comment not found"));
 
-        boolean isCommentAuthor = comment.getAuthor().getUniversityEmail().equalsIgnoreCase(email);
-        boolean isPostAuthor = comment.getPost().getAuthor().getUniversityEmail().equalsIgnoreCase(email);
+        boolean isCommentAuthor = comment.getAuthor() != null && 
+                comment.getAuthor().getUniversityEmail().equalsIgnoreCase(email);
+        
+        boolean isPostAuthor = false;
+        if (comment.getPost() != null && comment.getPost().getId() != null) {
+            Post post = postRepository.findById(comment.getPost().getId()).orElse(null);
+            if (post != null && post.getAuthor() != null) {
+                isPostAuthor = post.getAuthor().getUniversityEmail().equalsIgnoreCase(email);
+            }
+        }
 
         if (!isCommentAuthor && !isPostAuthor) {
             throw new RuntimeException("Unauthorized comment deletion request");
